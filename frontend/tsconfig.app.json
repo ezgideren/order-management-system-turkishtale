@@ -17,7 +17,7 @@
         "./src/*"
       ],
       /* Bundler mode */
-      "moduleResolution": "Bundler",
+      "moduleResolution": "node",
       "allowImportingTsExtensions": true,
       "isolatedModules": false,
       "moduleDetection": "force",
@@ -31,7 +31,13 @@
       "noUncheckedSideEffectImports": true
     },
     "include": [
-      "src"
+      "next-env.d.ts",
+      "*/.ts",
+      "*/.tsx",
+      ".next/types/*/.ts"
+    ],
+    "exclude": [
+      "node_modules"
     ]
   }
 }
