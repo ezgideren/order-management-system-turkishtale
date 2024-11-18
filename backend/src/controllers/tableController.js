@@ -1,5 +1,4 @@
 import { Table } from '../models/Table.js';
-import { Order } from '../models/Order.js';
 
 export const tableController = {
     // Get all tables

@@ -1,12 +1,23 @@
-// backend/controllers/authController.js
+// backend/src/controllers/authController.js
 import jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
 import { User } from '../models/User.js';
 
 export const authController = {
     login: async (req, res) => {
         try {
+            console.log('Login attempt:', req.body);
             const { username, password } = req.body;
 
+            // Validate input
+            if (!username || !password) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Username and password are required'
+                });
+            }
+
+            // Find user
             const user = await User.findOne({ username });
             if (!user) {
                 return res.status(401).json({
@@ -15,7 +26,8 @@ export const authController = {
                 });
             }
 
-            const isMatch = await user.comparePassword(password);
+            // Verify password
+            const isMatch = await bcrypt.compare(password, user.password);
             if (!isMatch) {
                 return res.status(401).json({
                     success: false,
@@ -23,12 +35,14 @@ export const authController = {
                 });
             }
 
+            // Generate token
             const token = jwt.sign(
                 { userId: user._id, role: user.role },
-                process.env.JWT_SECRET || 'your-secret-key',
+                process.env.JWT_SECRET,
                 { expiresIn: '8h' }
             );
 
+            // Send response
             res.json({
                 success: true,
                 user: {
@@ -40,25 +54,10 @@ export const authController = {
             });
 
         } catch (error) {
+            console.error('Login error:', error);
             res.status(500).json({
                 success: false,
-                message: 'Login failed'
-            });
-        }
-    },
-
-    logout: async (req, res) => {
-        try {
-            // Since we're using JWT, we don't need to do anything server-side
-            // The client will remove the token
-            res.json({
-                success: true,
-                message: 'Logged out successfully'
-            });
-        } catch (error) {
-            res.status(500).json({
-                success: false,
-                message: 'Logout failed'
+                message: 'An error occurred during login'
             });
         }
     },
@@ -85,6 +84,20 @@ export const authController = {
             res.status(401).json({
                 success: false,
                 message: 'Token verification failed'
+            });
+        }
+    },
+
+    logout: async (req, res) => {
+        try {
+            res.json({
+                success: true,
+                message: 'Logged out successfully'
+            });
+        } catch (error) {
+            res.status(500).json({
+                success: false,
+                message: 'Logout failed'
             });
         }
     }

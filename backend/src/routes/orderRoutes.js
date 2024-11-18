@@ -1,15 +1,17 @@
+// backend/src/routes/orderRoutes.js
 import express from 'express';
 import { orderController } from '../controllers/orderController.js';
 import { authenticate } from '../middleware/auth.js';
-import { requirePermission, requireAnyPermission } from '../middleware/authorize.js';
-import { PERMISSIONS } from '../models/User.js';
 
 const router = express.Router();
 
+// Protected routes
 router.use(authenticate);
 
-router.post('/', requirePermission(PERMISSIONS.ORDER_MANAGEMENT), orderController.createOrder);
-router.get('/', requireAnyPermission([PERMISSIONS.ORDER_MANAGEMENT, PERMISSIONS.KITCHEN_DISPLAY]), orderController.getOrders);
-router.put('/:id/status', requireAnyPermission([PERMISSIONS.ORDER_MANAGEMENT, PERMISSIONS.KITCHEN_DISPLAY]), orderController.updateStatus);
+router.get('/', orderController.getAllOrders);
+router.post('/', orderController.createOrder);
+router.get('/:id', orderController.getOrderById);
+router.put('/:id/status', orderController.updateOrderStatus);
+router.put('/:id/items', orderController.updateOrderItems);
 
 export default router;

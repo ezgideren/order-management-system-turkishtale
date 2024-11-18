@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, CardHeader, CardContent, CardFooter, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Table } from '@/types';
+import { Table } from '../../types/index';
 import { useApp } from '@/contexts/AppContext';
 import { Users, Coffee, CalendarClock, Trash, Loader2 } from 'lucide-react';
 import {

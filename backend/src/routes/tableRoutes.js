@@ -10,6 +10,6 @@ router.use(authenticate);
 
 router.get('/', requirePermission(PERMISSIONS.TABLE_MANAGEMENT), tableController.getAllTables);
 router.post('/', requirePermission(PERMISSIONS.TABLE_MANAGEMENT), tableController.createTable);
-router.put('/:id/status', requirePermission(PERMISSIONS.TABLE_MANAGEMENT), tableController.updateStatus);
+router.put('/:id/status', requirePermission(PERMISSIONS.TABLE_MANAGEMENT), tableController.updateTableStatus);
 
 export default router;

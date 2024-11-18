@@ -35,3 +35,10 @@ export interface KitchenStats {
     urgentOrders: number;
     itemsToPrepare: number;
 }
+
+export interface Table {
+    number: number;
+    status: TableStatus;
+    reservedBy: string | null;
+    reservedUntil: Date | null;
+}

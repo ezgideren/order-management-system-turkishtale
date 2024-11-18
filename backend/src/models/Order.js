@@ -1,3 +1,4 @@
+// backend/src/models/Order.js
 import mongoose from 'mongoose';
 
 const orderItemSchema = new mongoose.Schema({
@@ -11,13 +12,16 @@ const orderItemSchema = new mongoose.Schema({
         required: true,
         min: 1
     },
-    modifications: [String],
+    notes: String,
     status: {
         type: String,
         enum: ['pending', 'preparing', 'ready', 'delivered'],
         default: 'pending'
     },
-    notes: String
+    preparedKitchen: {
+        type: Boolean,
+        required: true
+    }
 });
 
 const orderSchema = new mongoose.Schema({
@@ -39,8 +43,7 @@ const orderSchema = new mongoose.Schema({
         type: Number,
         required: true,
         min: 0
-    },
-    specialInstructions: String
+    }
 }, {
     timestamps: true
 });
