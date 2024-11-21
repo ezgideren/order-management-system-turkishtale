@@ -1,7 +1,8 @@
+// src/services/api.ts
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: import.meta.env.VITE_API_URL || 'https://44.226.145.213:10000',
+    baseURL: import.meta.env.VITE_API_URL || 'https://turkishtale-ordermanagement.onrender.com',
     headers: {
         'Content-Type': 'application/json'
     },
