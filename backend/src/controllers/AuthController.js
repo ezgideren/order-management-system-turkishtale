@@ -1,62 +1,59 @@
+import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
+import { User } from '../models/User.js';
 
-export const authController = {
-    login: async (req, res) => {
+class AuthController {
+    async login(req, res) {
         try {
             const { username, password } = req.body;
-
             if (!username || !password) {
                 return res.status(400).json({ message: 'Invalid request' });
             }
 
-            const user = await User.findOne({ username })
-                .select('+password +tokenVersion');
-
+            const user = await User.findOne({ username });
             if (!user || !(await bcrypt.compare(password, user.password))) {
                 return res.status(401).json({ message: 'Invalid credentials' });
             }
 
             const token = jwt.sign(
-                {
-                    userId: user._id,
-                    role: user.role,
-                    tokenVersion: user.tokenVersion
-                },
+                { userId: user._id, role: user.role },
                 process.env.JWT_SECRET,
-                { expiresIn: TOKEN_EXPIRY }
+                { expiresIn: '8h' }
             );
-
-            // Set HTTP-only cookie
-            res.cookie('token', token, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                sameSite: 'strict',
-                maxAge: 3600000 // 1 hour
-            });
 
             res.json({
                 user: {
                     id: user._id,
                     username: user.username,
                     role: user.role
-                }
+                },
+                accessToken: token
             });
         } catch (error) {
             res.status(500).json({ message: 'Server error' });
         }
-    },
+    }
 
-    logout: async (req, res) => {
+    async verify(req, res) {
         try {
-            // Increment token version to invalidate existing tokens
-            await User.findByIdAndUpdate(req.user.userId, {
-                $inc: { tokenVersion: 1 }
-            });
+            const user = await User.findById(req.user.userId).select('-password');
+            if (!user) {
+                return res.status(401).json({ message: 'User not found' });
+            }
 
-            res.clearCookie('token');
-            res.json({ message: 'Success' });
-        } catch {
+            res.json({ user });
+        } catch (error) {
+            res.status(401).json({ message: 'Verification failed' });
+        }
+    }
+
+    async logout(req, res) {
+        try {
+            res.json({ message: 'Logged out successfully' });
+        } catch (error) {
             res.status(500).json({ message: 'Server error' });
         }
     }
-};
+}
+
+export const authController = new AuthController();
