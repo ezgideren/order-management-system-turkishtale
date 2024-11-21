@@ -24,7 +24,7 @@ const httpServer = createServer(app);
 
 // CORS Configuration
 const corsOptions = {
-    origin: process.env.CLIENT_URL || 'http://localhost:5173',
+    origin: process.env.CLIENT_URL || 'https://order-management-system-turkishtale-uudf.onrender.com',
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
     credentials: true,
     allowedHeaders: ['Content-Type', 'Authorization']
