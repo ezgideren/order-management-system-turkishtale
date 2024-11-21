@@ -19,15 +19,18 @@ const app = express();
 const httpServer = createServer(app);
 
 const corsOptions = {
-    origin: process.env.NODE_ENV === 'production'
-        ? ['https://order-management-system-turkishtale-uudf.onrender.com']
-        : ['http://localhost:5173'],
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+    origin: ['https://order-management-system-turkishtale-uudf.onrender.com'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     credentials: true,
-    allowedHeaders: ['Content-Type', 'Authorization']
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    exposedHeaders: ['Authorization'],
+    preflightContinue: false,
+    optionsSuccessStatus: 204
 };
 
 app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
+
 app.use(express.json());
 app.set('trust proxy', 1); // Trust Render's proxy
 
