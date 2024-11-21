@@ -77,7 +77,7 @@ export const NewOrderDialog: React.FC<NewOrderDialogProps> = ({
         [menuItems]);
 
     const availableTables = React.useMemo(() =>
-            tables?.filter(table => table.status !== 'cleaning') ?? [],
+    tables?.filter(table => table.seats > 0) ?? [],
         [tables]);
 
     const handleAddItem = () => {
@@ -136,9 +136,10 @@ export const NewOrderDialog: React.FC<NewOrderDialogProps> = ({
         } else {
             const newOrder: Order = {
                 id: Date.now().toString(),
-                tableNumber: parseInt(tableNumber),
+                tableNumber: tableNumber,
                 items: orderItems,
                 timestamp: new Date()
+
             };
             onAddOrder(newOrder);
         }
@@ -174,7 +175,7 @@ export const NewOrderDialog: React.FC<NewOrderDialogProps> = ({
                             <SelectContent>
                                 {availableTables.map(table => (
                                     <SelectItem
-                                        key={table.id}
+                                        key={table.number}
                                         value={table.id.toString()}
                                     >
                                         Table {table.id} ({table.seats} seats)

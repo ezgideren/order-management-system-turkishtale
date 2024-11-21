@@ -1,12 +1,20 @@
-// src/contexts/AuthContext.tsx
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import * as React from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import { useToast } from "@/components/ui/use-toast";
 import api from '@/services/api';
+import { AxiosResponse } from 'axios';
 
 interface User {
     id: string;
     username: string;
     role: string;
+}
+
+interface AuthResponse {
+    success: boolean;
+    message?: string;
+    token?: string;
+    user?: User;
 }
 
 interface AuthContextType {
@@ -31,8 +39,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             const token = localStorage.getItem('token');
             if (token) {
                 try {
-                    const response = await api.get('/auth/verify');
-                    setUser(response.user);
+                    const { data } = await api.get<AuthResponse>('/auth/verify');
+                    if (data.user) {
+                        setUser(data.user);
+                    }
                 } catch (err) {
                     localStorage.removeItem('token');
                     setUser(null);
@@ -44,26 +54,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         initializeAuth();
     }, []);
 
-    const login = async (username: string, password: string) => {
+    const login = async (username: string, password: string): Promise<void> => {
         try {
             setError(null);
             setLoading(true);
 
-            const response = await api.post('/auth/login', { username, password });
+            const { data } = await api.post<AuthResponse>('/auth/login', { username, password });
 
-            if (!response.success) {
-                throw new Error(response.message || 'Login failed');
+            if (!data.success) {
+                throw new Error(data.message || 'Login failed');
             }
 
-            localStorage.setItem('token', response.token);
-            setUser(response.user);
+            if (data.token) {
+                localStorage.setItem('token', data.token);
+            }
+            if (data.user) {
+                setUser(data.user);
+            }
 
             toast({
                 title: "Success",
                 description: "Logged in successfully",
             });
-
-            return response;
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message : 'Login failed';
             setError(errorMessage);
@@ -80,14 +92,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const logout = async () => {
         try {
-            await api.post('/auth/logout');
+            await api.post<AuthResponse>('/auth/logout');
             localStorage.removeItem('token');
             setUser(null);
             toast({
                 title: "Success",
                 description: "Logged out successfully",
             });
-            window.location.href = '/login'; // Use window.location instead of navigate
+            window.location.href = '/login';
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message : 'Logout failed';
             toast({

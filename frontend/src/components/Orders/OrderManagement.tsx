@@ -8,10 +8,10 @@ import { StatusFilter } from './StatusFilter';
 import { NewOrderDialog } from './NewOrderDialog';
 import { useApp } from '@/contexts/AppContext';
 import { useToast } from "@/components/ui/use-toast";
-import { Order, OrderItem } from '@/types';
+import { Order, OrderItem } from '@/types/index';
 
 export const OrderManagement = () => {
-    const { userRole, addOrder, addItemsToOrder } = useApp();
+    const { userRole, setUserRole, addOrder, addItemsToOrder } = useApp();
     const { toast } = useToast();
     const [activeFilter, setActiveFilter] = React.useState('all');
     const [isNewOrderDialogOpen, setIsNewOrderDialogOpen] = React.useState(false);

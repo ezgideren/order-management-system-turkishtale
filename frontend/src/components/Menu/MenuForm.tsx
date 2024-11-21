@@ -9,13 +9,19 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { MenuItem } from '@/types';
+import { MenuItem } from '@/types/';
 import { useApp } from '@/contexts/AppContext';
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from 'lucide-react';
 import { MENU_CATEGORIES } from '../../lib/constants';
 
-export const MenuForm = () => {
+interface MenuFormProps {
+    onAddMenuItem: (newItem: Omit<MenuItem, "itemId">) => void;
+    categories: string[];
+}
+
+
+export const MenuForm: React.FC<MenuFormProps> = ({ onAddMenuItem, categories }) => {
     const { menuItems, setMenuItems } = useApp();
     const [error, setError] = React.useState<string>('');
     const [formData, setFormData] = React.useState({

@@ -1,9 +1,8 @@
-import React from 'react';
+import * as React from 'react';
+import { useState } from 'react';
 import { TableGrid } from './TableGrid';
 import { TableForm } from './TableForm';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Table } from '@/types';
-import { useApp } from '@/contexts/AppContext';
 import {
     Select,
     SelectContent,
@@ -12,10 +11,16 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { Label } from '@/components/ui/label';
+import { Table, TableStatus } from '@/types';
+import { useApp } from '@/contexts/AppContext';
 
 export const TableManagement = () => {
     const { tables } = useApp();
-    const [filterStatus, setFilterStatus] = React.useState<Table['status'] | 'all'>('all');
+    const [filterStatus, setFilterStatus] = useState<TableStatus | 'all'>('all');
+
+    const handleFilterChange = (value: string) => {
+        setFilterStatus(value as TableStatus | 'all');
+    };
 
     const activeTablesCount = tables.filter(t => t.status === 'occupied').length;
     const totalCapacity = tables.reduce((sum, table) => sum + table.seats, 0);
@@ -31,6 +36,7 @@ export const TableManagement = () => {
                         <p className="text-2xl font-bold">{activeTablesCount}</p>
                     </CardContent>
                 </Card>
+
                 <Card>
                     <CardHeader>
                         <CardTitle className="text-lg">Total Capacity</CardTitle>
@@ -39,12 +45,13 @@ export const TableManagement = () => {
                         <p className="text-2xl font-bold">{totalCapacity} seats</p>
                     </CardContent>
                 </Card>
+
                 <Card>
                     <CardHeader>
                         <CardTitle className="text-lg">Filter Tables</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <Select value={filterStatus} onValueChange={setFilterStatus}>
+                        <Select value={filterStatus} onValueChange={handleFilterChange}>
                             <SelectTrigger>
                                 <SelectValue placeholder="Filter by status" />
                             </SelectTrigger>
@@ -53,7 +60,6 @@ export const TableManagement = () => {
                                 <SelectItem value="available">Available</SelectItem>
                                 <SelectItem value="occupied">Occupied</SelectItem>
                                 <SelectItem value="reserved">Reserved</SelectItem>
-                                <SelectItem value="cleaning">Cleaning</SelectItem>
                             </SelectContent>
                         </Select>
                     </CardContent>
@@ -65,3 +71,5 @@ export const TableManagement = () => {
         </div>
     );
 };
+
+export default TableManagement;

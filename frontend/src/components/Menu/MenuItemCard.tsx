@@ -19,23 +19,33 @@ import {
 
 interface MenuItemCardProps {
     item: MenuItem;
+    onUpdate?: (itemId: string, updates: Partial<MenuItem>) => void;
+    onDelete?: (itemId: string) => void;
+    onToggleAvailability?: (itemId: string) => void;
 }
 
-export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item }) => {
-    const { setMenuItems } = useApp();
+export const MenuItemCard: React.FC<MenuItemCardProps> = ({
+                                                              item,
+                                                              onUpdate,
+                                                              onDelete,
+                                                              onToggleAvailability
+                                                          }) => {
+    const { toggleItemAvailability, deleteMenuItem } = useApp();
 
-    const toggleAvailability = () => {
-        setMenuItems(prev =>
-            prev.map(i =>
-                i.itemId === item.itemId
-                    ? { ...i, available: !i.available }
-                    : i
-            )
-        );
+    const handleToggleAvailability = () => {
+        if (onToggleAvailability) {
+            onToggleAvailability(item.itemId);
+        } else {
+            toggleItemAvailability(item.itemId);
+        }
     };
 
-    const deleteItem = () => {
-        setMenuItems(prev => prev.filter(i => i.itemId !== item.itemId));
+    const handleDelete = () => {
+        if (onDelete) {
+            onDelete(item.itemId);
+        } else {
+            deleteMenuItem(item.itemId);
+        }
     };
 
     return (
@@ -62,7 +72,7 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item }) => {
             <CardFooter className="justify-between">
                 <Button
                     variant={item.available ? "outline" : "default"}
-                    onClick={toggleAvailability}
+                    onClick={handleToggleAvailability}
                 >
                     {item.available ? 'Mark Unavailable' : 'Mark Available'}
                 </Button>
@@ -82,7 +92,7 @@ export const MenuItemCard: React.FC<MenuItemCardProps> = ({ item }) => {
                         </AlertDialogHeader>
                         <AlertDialogFooter>
                             <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction onClick={deleteItem} className="bg-red-500 hover:bg-red-600">
+                            <AlertDialogAction onClick={handleDelete} className="bg-red-500 hover:bg-red-600">
                                 Delete
                             </AlertDialogAction>
                         </AlertDialogFooter>

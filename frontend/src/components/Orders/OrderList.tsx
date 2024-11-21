@@ -1,21 +1,16 @@
-// src/components/Order/OrderList.tsx
 import React from 'react';
 import { OrderCard } from './OrderCard';
 import { useApp } from '@/contexts/AppContext';
-import { Order } from '@/types';
+import { Order, UserRole } from '@/types/index';
 
 interface OrderListProps {
     activeFilter: string;
     onAddItems: (order: Order) => void;
 }
 
-export const OrderList: React.FC<OrderListProps> = ({
-                                                        activeFilter,
-                                                        onAddItems
-                                                    }) => {
-    const { orders, userRole } = useApp();
+export const OrderList: React.FC<OrderListProps> = ({ activeFilter, onAddItems }) => {
+    const { orders, userRole, updateOrderItemStatus } = useApp();
 
-    // Filter orders based on the active filter
     const filteredOrders = React.useMemo(() => {
         if (activeFilter === 'all') return orders;
         return orders.filter(order =>
@@ -46,6 +41,8 @@ export const OrderList: React.FC<OrderListProps> = ({
                     key={order.id}
                     order={order}
                     onAddItems={canManageOrders ? onAddItems : undefined}
+                    onUpdateStatus={updateOrderItemStatus}
+                    userRole={userRole}
                 />
             ))}
         </div>

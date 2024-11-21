@@ -1,38 +1,38 @@
-// src/contexts/AppContext.tsx
-import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
-import { MenuItem, Order, OrderItem, Table, UserRole } from '@/types';
+import * as React from 'react';
+import { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import { MenuItem, Order, OrderItem, Table, UserRole } from '../types/index';
 import { useAuthContext } from './AuthContext';
 import { useToast } from '@/components/ui/use-toast';
 
+export type TableStatus = 'available' | 'occupied' | 'reserved';
+export type OrderStatus = 'pending' | 'in-progress' | 'completed';
+
 interface AppContextType {
-    // States
     menuItems: MenuItem[];
     orders: Order[];
     tables: Table[];
     activeFilter: string;
-    userRole: UserRole;
     isLoading: boolean;
+    userRole: UserRole;
+    setUserRole: (role: UserRole) => void;
 
-    // Menu Management
     setMenuItems: (items: MenuItem[]) => void;
     addMenuItem: (item: MenuItem) => void;
     updateMenuItem: (id: string, item: Partial<MenuItem>) => void;
     deleteMenuItem: (id: string) => void;
     toggleItemAvailability: (id: string) => void;
+    addTable: (seats: number) => void;
 
-    // Order Management
     addOrder: (order: Order) => void;
-    updateOrderStatus: (orderId: string, status: string) => void;
+    updateOrderStatus: (orderId: string, status: OrderStatus) => void;
     updateOrderItemStatus: (orderId: string, itemId: string) => void;
     addItemsToOrder: (orderId: string, items: OrderItem[]) => void;
     deleteOrder: (orderId: string) => void;
 
-    // Table Management
     getTables: () => Table[];
     getAvailableTables: () => Table[];
-    updateTableStatus: (tableId: string, status: string, orderId?: string) => void;
+    updateTableStatus: (tableId: string, status: TableStatus, orderId?: string) => void;
 
-    // Filters & Utils
     setActiveFilter: (filter: string) => void;
     getKitchenOrders: () => Order[];
     getTableOrders: (tableId: string) => Order[];
@@ -49,20 +49,22 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const [orders, setOrders] = useState<Order[]>([]);
     const [tables, setTables] = useState<Table[]>([]);
     const [activeFilter, setActiveFilter] = useState('all');
+    const [userRoles, setUserRoles] = useState<Record<string, UserRole>>({});
+    const [currentUserRole, setCurrentUserRole] = useState<UserRole>('server');
 
-    // Initialize default data
+
+
     useEffect(() => {
-        // Initialize tables
-        setTables([
+        const initialTables: Table[] = [
             { id: '1', number: 1, status: 'available', seats: 2 },
             { id: '2', number: 2, status: 'available', seats: 2 },
             { id: '3', number: 3, status: 'available', seats: 4 },
             { id: '4', number: 4, status: 'available', seats: 4 },
             { id: '5', number: 5, status: 'available', seats: 6 },
             { id: '6', number: 6, status: 'available', seats: 6 }
-        ]);
+        ];
+        setTables(initialTables);
 
-        // Load saved data from localStorage if available
         const savedMenuItems = localStorage.getItem('menuItems');
         const savedOrders = localStorage.getItem('orders');
 
@@ -76,7 +78,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setIsLoading(false);
     }, []);
 
-    // Save data to localStorage when it changes
     useEffect(() => {
         localStorage.setItem('menuItems', JSON.stringify(menuItems));
     }, [menuItems]);
@@ -85,7 +86,21 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         localStorage.setItem('orders', JSON.stringify(orders));
     }, [orders]);
 
-    // Menu Management
+    const addTable = useCallback((seats: number) => {
+        const newId = String(tables.length + 1);
+        const newTable: Table = {
+            id: newId,
+            number: tables.length + 1,
+            seats,
+            status: 'available'
+        };
+        setTables(prev => [...prev, newTable]);
+        toast({
+            title: "Success",
+            description: `Table ${newTable.number} added successfully`
+        });
+    }, [tables, toast]);
+
     const addMenuItem = useCallback((item: MenuItem) => {
         setMenuItems(prev => {
             const newItems = [...prev, item];
@@ -113,32 +128,23 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         ));
     }, []);
 
-    // Order Management
     const addOrder = useCallback((order: Order) => {
-        setOrders(prev => {
-            const newOrders = [order, ...prev];
-            // Update table status
-            setTables(tables =>
-                tables.map(table =>
-                    table.number === order.tableNumber
-                        ? { ...table, status: 'occupied', currentOrderId: order.id }
-                        : table
-                )
-            );
-            return newOrders;
-        });
+        const newOrder = {
+            ...order,
+            tableNumber: String(order.tableNumber)
+        };
+        setOrders(prev => [...prev, newOrder]);
     }, []);
 
-    const updateOrderStatus = useCallback((orderId: string, status: string) => {
+    const updateOrderStatus = useCallback((orderId: string, status: OrderStatus) => {
         setOrders(prev => prev.map(order => {
             if (order.id === orderId) {
                 const updatedOrder = { ...order, status };
-                // If order is completed, update table status
                 if (status === 'completed') {
                     setTables(tables =>
                         tables.map(table =>
-                            table.number === order.tableNumber
-                                ? { ...table, status: 'available', currentOrderId: undefined }
+                            table.id === order.tableNumber
+                                ? { ...table, status: 'available' as TableStatus, currentOrderId: undefined }
                                 : table
                         )
                     );
@@ -156,11 +162,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
                     ...order,
                     items: order.items.map(item => {
                         if (item.id === itemId) {
-                            const nextStatus =
-                                item.status === 'pending' ? 'preparing' :
-                                    item.status === 'preparing' ? 'ready' :
-                                        item.status === 'ready' ? 'delivered' :
-                                            item.status;
+                            const nextStatus = item.status === 'pending' ? 'preparing' :
+                                item.status === 'preparing' ? 'ready' :
+                                    item.status === 'ready' ? 'delivered' : item.status;
                             return { ...item, status: nextStatus };
                         }
                         return item;
@@ -185,8 +189,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             if (order) {
                 setTables(tables =>
                     tables.map(table =>
-                        table.number === order.tableNumber
-                            ? { ...table, status: 'available', currentOrderId: undefined }
+                        table.number.toString() === order.tableNumber
+                            ? { ...table, status: 'available' as TableStatus, currentOrderId: undefined }
                             : table
                     )
                 );
@@ -195,14 +199,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         });
     }, []);
 
-    // Table Management
     const getTables = useCallback(() => tables, [tables]);
 
     const getAvailableTables = useCallback(() =>
             tables.filter(table => table.status === 'available'),
         [tables]);
 
-    const updateTableStatus = useCallback((tableId: string, status: string, orderId?: string) => {
+    const updateTableStatus = useCallback((tableId: string, status: TableStatus, orderId?: string) => {
         setTables(prev => prev.map(table =>
             table.id === tableId
                 ? { ...table, status, currentOrderId: orderId }
@@ -210,7 +213,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         ));
     }, []);
 
-    // Utility Functions
     const getKitchenOrders = useCallback(() =>
             orders.filter(order =>
                 order.items.some(item =>
@@ -221,7 +223,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     const getTableOrders = useCallback((tableId: string) =>
             orders.filter(order =>
-                order.tableNumber === parseInt(tableId)
+                order.tableNumber === tableId
             ),
         [orders]);
 
@@ -235,46 +237,50 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         );
     }, []);
 
+
+    const setUserRole = useCallback((role: UserRole) => {
+        setCurrentUserRole(role);
+        toast({
+            title: "Success",
+            description: `User role updated successfully`
+        });
+    }, [toast]);
+
+
+    const getUserRole = useCallback((userId: string) => {
+        return userRoles[userId] || 'server';
+    }, [userRoles]);
+
+
     const value = {
-        // States
         menuItems,
         orders,
         tables,
         activeFilter,
-        userRole: user?.role as UserRole,
         isLoading,
-
-        // Menu Management
+        userRole: currentUserRole,
+        setUserRole,
         setMenuItems,
         addMenuItem,
         updateMenuItem,
         deleteMenuItem,
         toggleItemAvailability,
-
-        // Order Management
+        addTable,
         addOrder,
         updateOrderStatus,
         updateOrderItemStatus,
         addItemsToOrder,
         deleteOrder,
-
-        // Table Management
         getTables,
         getAvailableTables,
         updateTableStatus,
-
-        // Filters & Utils
         setActiveFilter,
         getKitchenOrders,
         getTableOrders,
         clearCompletedOrders
     };
 
-    return (
-        <AppContext.Provider value={value}>
-            {children}
-        </AppContext.Provider>
-    );
+    return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 };
 
 export const useApp = () => {

@@ -1,5 +1,5 @@
 // src/utils/statusHelpers.ts
-import { OrderItemStatus } from '@/types';
+import { OrderItemStatus } from '@/types/index';
 
 export const getStatusColor = (status: OrderItemStatus) => {
     switch (status) {
@@ -36,6 +36,8 @@ export const getNextStatus = (status: OrderItemStatus): OrderItemStatus => {
         case 'preparing':
             return 'ready';
         case 'ready':
+            return 'delivered';
+        case 'delivered':
             return 'delivered';
         default:
             return status;

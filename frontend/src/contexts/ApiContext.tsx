@@ -1,6 +1,6 @@
-// src/contexts/ApiContext.tsx
-import React, { createContext, useContext } from 'react';
-import axios from 'axios';
+import * as React from 'react';
+import { createContext, useContext } from 'react';
+import axios, { AxiosInstance, AxiosResponse } from 'axios';
 
 interface ApiContextType {
     api: {
@@ -15,17 +15,16 @@ interface ApiContextType {
 const ApiContext = createContext<ApiContextType | undefined>(undefined);
 
 export const ApiProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    const API_URL = import.meta.env.VITE_API_URL || 'https://order-management-system-turkishtale.onrender.com';
 
-    const api = axios.create({
+    const axiosInstance: AxiosInstance = axios.create({
         baseURL: API_URL,
         headers: {
             'Content-Type': 'application/json',
         },
     });
 
-    // Request interceptor
-    api.interceptors.request.use(
+    axiosInstance.interceptors.request.use(
         (config) => {
             const token = localStorage.getItem('token');
             if (token) {
@@ -36,8 +35,7 @@ export const ApiProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         (error) => Promise.reject(error)
     );
 
-    // Response interceptor
-    api.interceptors.response.use(
+    axiosInstance.interceptors.response.use(
         (response) => response.data,
         (error) => {
             if (error.response?.status === 401) {
@@ -48,13 +46,18 @@ export const ApiProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         }
     );
 
-    const value = {
+    const value: ApiContextType = {
         api: {
-            get: <T,>(url: string) => api.get<T>(url),
-            post: <T,>(url: string, data: any) => api.post<T>(url, data),
-            put: <T,>(url: string, data: any) => api.put<T>(url, data),
-            patch: <T,>(url: string, data?: any) => api.patch<T>(url, data),
-            delete: (url: string) => api.delete(url),
+            get: <T,>(url: string): Promise<T> =>
+                axiosInstance.get<T, AxiosResponse<T>>(url).then(response => response.data),
+            post: <T,>(url: string, data: any): Promise<T> =>
+                axiosInstance.post<T, AxiosResponse<T>>(url, data).then(response => response.data),
+            put: <T,>(url: string, data: any): Promise<T> =>
+                axiosInstance.put<T, AxiosResponse<T>>(url, data).then(response => response.data),
+            patch: <T,>(url: string, data?: any): Promise<T> =>
+                axiosInstance.patch<T, AxiosResponse<T>>(url, data).then(response => response.data),
+            delete: (url: string): Promise<void> =>
+                axiosInstance.delete(url).then(() => undefined),
         },
     };
 

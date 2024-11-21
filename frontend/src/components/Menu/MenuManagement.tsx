@@ -33,7 +33,7 @@ export const MenuManagement: React.FC = () => {
         setSearchQuery,
         searchResults,
         isSearching,
-        clearSearch
+        clearSearch,
     } = useMenuSearch(menuItems);
 
     React.useEffect(() => {

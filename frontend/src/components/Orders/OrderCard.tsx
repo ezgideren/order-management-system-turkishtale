@@ -1,4 +1,3 @@
-// src/components/Orders/OrderCard.tsx
 import React, { useMemo } from 'react';
 import { Order, OrderItem, UserRole } from '@/types';
 import { Button } from '@/components/ui/button';
@@ -6,7 +5,7 @@ import { Card, CardHeader, CardContent, CardFooter, CardTitle } from '@/componen
 import { Clock, ChefHat, Store, AlertCircle } from 'lucide-react';
 import { getStatusColor, getStatusButtonText } from '@/utils/statusHelpers';
 import { Badge } from '@/components/ui/badge';
-import {Tooltip, TooltipContent, TooltipProvider, TooltipTrigger} from '@/components/ui/tooltip';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface OrderCardProps {
     order: Order;
@@ -28,8 +27,9 @@ const ItemGroup: React.FC<ItemGroupProps> = ({
                                                  onUpdateStatus,
                                                  userRole
                                              }) => {
-    const canUpdateStatus = ['primary_server', 'secondary_server'].includes(userRole) ||
-        (userRole === 'kitchen_staff' && item.preparedKitchen);
+    const canUpdateStatus = userRole === 'server' ||
+        userRole === 'admin' ||
+        (userRole === 'kitchen' && item.preparedKitchen);
 
     return (
         <div className="flex justify-between items-center p-3 rounded-lg hover:bg-gray-50 border border-gray-100 group">
@@ -38,21 +38,21 @@ const ItemGroup: React.FC<ItemGroupProps> = ({
                     <span className="font-medium">{item.quantity}x {item.name}</span>
                     {item.preparedKitchen ? (
                         <TooltipProvider>
-                        <Tooltip>
-                            <TooltipTrigger>
-                                <ChefHat className="h-4 w-4 text-orange-500" />
-                            </TooltipTrigger>
-                            <TooltipContent>Kitchen Prepared</TooltipContent>
-                        </Tooltip>
+                            <Tooltip>
+                                <TooltipTrigger>
+                                    <ChefHat className="h-4 w-4 text-orange-500" />
+                                </TooltipTrigger>
+                                <TooltipContent>Kitchen Prepared</TooltipContent>
+                            </Tooltip>
                         </TooltipProvider>
                     ) : (
                         <TooltipProvider>
-                        <Tooltip>
-                            <TooltipTrigger>
-                                <Store className="h-4 w-4 text-blue-500" />
-                            </TooltipTrigger>
-                            <TooltipContent>Front Station</TooltipContent>
-                        </Tooltip>
+                            <Tooltip>
+                                <TooltipTrigger>
+                                    <Store className="h-4 w-4 text-blue-500" />
+                                </TooltipTrigger>
+                                <TooltipContent>Front Station</TooltipContent>
+                            </Tooltip>
                         </TooltipProvider>
                     )}
                 </div>
@@ -95,7 +95,8 @@ export const OrderCard: React.FC<OrderCardProps> = ({
                                                     }) => {
     const elapsedTime = useMemo(() => {
         const now = new Date();
-        const diffInMinutes = Math.floor((now.getTime() - order.timestamp.getTime()) / (1000 * 60));
+        const orderTime = new Date(order.timestamp);
+        const diffInMinutes = Math.floor((now.getTime() - orderTime.getTime()) / (1000 * 60));
         return diffInMinutes;
     }, [order.timestamp]);
 
@@ -128,20 +129,20 @@ export const OrderCard: React.FC<OrderCardProps> = ({
                         </Badge>
                     </div>
                     <TooltipProvider>
-                    <Tooltip>
-                        <TooltipTrigger>
-                            <div className="flex items-center text-sm text-gray-500">
-                                <Clock className="h-4 w-4 mr-1" />
-                                {elapsedTime < 60
-                                    ? `${elapsedTime}m ago`
-                                    : `${Math.floor(elapsedTime / 60)}h ${elapsedTime % 60}m ago`
-                                }
-                            </div>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                            {order.timestamp.toLocaleString()}
-                        </TooltipContent>
-                    </Tooltip>
+                        <Tooltip>
+                            <TooltipTrigger>
+                                <div className="flex items-center text-sm text-gray-500">
+                                    <Clock className="h-4 w-4 mr-1" />
+                                    {elapsedTime < 60
+                                        ? `${elapsedTime}m ago`
+                                        : `${Math.floor(elapsedTime / 60)}h ${elapsedTime % 60}m ago`
+                                    }
+                                </div>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                {new Date(order.timestamp).toLocaleString()}
+                            </TooltipContent>
+                        </Tooltip>
                     </TooltipProvider>
                 </div>
             </CardHeader>
@@ -198,7 +199,7 @@ export const OrderCard: React.FC<OrderCardProps> = ({
                     {order.items.reduce((acc, item) => acc + item.quantity, 0)}
                 </div>
 
-                {(userRole === 'primary_server' || userRole === 'secondary_server') && (
+                {(userRole === 'server' || userRole === 'admin') && (
                     <Button
                         variant="default"
                         size="sm"

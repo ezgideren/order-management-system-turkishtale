@@ -1,25 +1,31 @@
 import React from 'react';
-import { Table } from '@/types';
-import { useApp } from '@/contexts/AppContext';
+import { Table, TableStatus } from '@/types';
 import { TableCard } from './TableCard';
+import {useApp} from "@/contexts/AppContext";
 
 interface TableGridProps {
-    filterStatus: Table['status'] | 'all';
+    filterStatus: TableStatus | 'all';
 }
 
 export const TableGrid: React.FC<TableGridProps> = ({ filterStatus }) => {
-    const { tables } = useApp();
+    const { tables, updateTableStatus } = useApp();
 
-    const filteredTables = React.useMemo(() => {
-        return filterStatus === 'all'
-            ? tables
-            : tables.filter(table => table.status === filterStatus);
-    }, [tables, filterStatus]);
+    const filteredTables = filterStatus === 'all'
+        ? tables
+        : tables.filter(table => table.status === filterStatus);
+
+    const handleStatusChange = (tableId: string, newStatus: TableStatus) => {
+        updateTableStatus(tableId, newStatus);
+    };
 
     return (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredTables.map((table) => (
-                <TableCard key={table.id} table={table} />
+                <TableCard
+                    key={String(table.id)}
+                    {...table}
+                    onStatusChange={(status) => handleStatusChange(String(table.id), status)}
+                />
             ))}
         </div>
     );

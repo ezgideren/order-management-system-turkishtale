@@ -1,27 +1,28 @@
 import { useState } from 'react';
-import { Table } from '@/types';
+import { Table, TableStatus } from '@/types';
 
 export const useTables = () => {
     const [tables, setTables] = useState<Table[]>([]);
 
     const addTable = (seats: number) => {
         const newTable: Table = {
-            id: Math.max(...tables.map(t => t.id), 0) + 1,
+            id: String(Math.max(...tables.map(t => Number(t.id)), 0) + 1),
+            number: tables.length + 1,
             seats,
             status: 'available',
-            position: { x: 0, y: 0 },
-            rotation: 0
+            reservedBy: undefined,
+            reservedUntil: undefined
         };
         setTables([...tables, newTable]);
     };
 
-    const updateTableStatus = (tableId: number, status: Table['status']) => {
+    const updateTableStatus = (tableId: string, status: TableStatus) => {
         setTables(tables.map(table =>
             table.id === tableId ? { ...table, status } : table
         ));
     };
 
-    const deleteTable = (tableId: number) => {
+    const deleteTable = (tableId: string) => {
         setTables(tables.filter(table => table.id !== tableId));
     };
 
