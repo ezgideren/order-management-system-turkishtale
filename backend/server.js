@@ -18,13 +18,18 @@ const app = express();
 
 // CORS configuration
 const corsOptions = {
-    origin: ['https://order-management-system-turkishtale-uudf.onrender.com'],
+    origin: 'https://order-management-system-turkishtale-uudf.onrender.com',
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'Accept'],
+    preflightContinue: false,
+    optionsSuccessStatus: 204,
     credentials: true
 };
 
 app.use(cors(corsOptions));
+app.options('*', cors(corsOptions)); // Enable preflight
+
+// Standard middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.set('trust proxy', 1);
@@ -32,7 +37,13 @@ app.set('trust proxy', 1);
 // Request logging
 app.use((req, res, next) => {
     console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+    console.log('Headers:', req.headers); // Debug headers
     next();
+});
+
+// Test route for CORS
+app.get('/test-cors', (req, res) => {
+    res.json({ message: 'CORS is working' });
 });
 
 // Routes
@@ -54,7 +65,8 @@ app.use((req, res) => {
 app.use((err, req, res, next) => {
     console.error('Error:', err);
     res.status(err.status || 500).json({
-        message: process.env.NODE_ENV === 'production' ? 'Internal server error' : err.message
+        message: process.env.NODE_ENV === 'production' ? 'Internal server error' : err.message,
+        path: req.path // Debug info
     });
 });
 
@@ -64,8 +76,11 @@ const startServer = async () => {
         const PORT = process.env.PORT || 10000;
 
         app.listen(PORT, () => {
+            console.log('=================================');
             console.log(`Server running on port ${PORT}`);
             console.log(`Environment: ${process.env.NODE_ENV}`);
+            console.log('CORS origin:', corsOptions.origin);
+            console.log('=================================');
         });
     } catch (error) {
         console.error('Failed to start server:', error);
