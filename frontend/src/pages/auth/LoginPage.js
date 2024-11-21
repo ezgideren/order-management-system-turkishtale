@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -102,10 +102,10 @@ const LoginPage = () => {
                     <CardFooter>
                         <Button type="submit" className="w-full" disabled={loading}>
                             {loading ? (
-                                <>
+                                <React.Fragment>
                                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                     Logging in...
-                                </>
+                                </React.Fragment>
                             ) : (
                                 'Login'
                             )}
