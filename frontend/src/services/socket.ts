@@ -1,7 +1,7 @@
 // src/services/socket.ts
 import { io, Socket } from 'socket.io-client';
 
-const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000';
+const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || '44.226.145.213';
 
 class SocketService {
     private socket: Socket | null = null;

@@ -12,7 +12,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://order-management-system-turkishtale.onrender.com',
+        target: '44.226.145.213',
         changeOrigin: true,
         secure: false,
         ws: true
