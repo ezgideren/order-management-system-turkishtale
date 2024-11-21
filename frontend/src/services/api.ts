@@ -1,8 +1,7 @@
-// src/services/api.ts
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: 'https://turkishtale-ordermanagement.onrender.com',
+    baseURL: 'https://turkishtale-ordermanagement.onrender.com/api',
     headers: {
         'Content-Type': 'application/json'
     },
