@@ -1,90 +1,69 @@
-import { useState, useCallback } from 'react';
-import { LoginCredentials, User, AuthState } from '@/types/auth';
-
-// Simulated user data - replace with actual API calls
-const MOCK_USERS = [
-    {
-        id: '1',
-        username: 'servis',
-        password: 'password123',
-        fullName: 'Servis Manager',
-        role: 'primary_server' as const,
-    },
-    {
-        id: '2',
-        username: 'kitchen',
-        password: 'password123',
-        fullName: 'Kitchen Staff',
-        role: 'kitchen_staff' as const,
-    }
-];
+import { useState, useEffect } from 'react';
+import { AuthState, User, LoginCredentials } from '@/types/auth';
 
 export const useAuth = () => {
-    const [state, setState] = useState<AuthState>(() => {
-        // Check if there's an existing session in localStorage
-        const savedAuth = localStorage.getItem('auth');
-        if (savedAuth) {
-            try {
-                return JSON.parse(savedAuth);
-            } catch (e) {
-                localStorage.removeItem('auth');
-            }
-        }
-        return {
-            isAuthenticated: false,
-            user: null,
-            accessToken: null
-        };
+    const [state, setState] = useState<AuthState>({
+        isAuthenticated: false,
+        user: null,
+        accessToken: null
     });
 
-    const login = useCallback(async (credentials: LoginCredentials) => {
-        // Simulate API call delay
-        await new Promise(resolve => setTimeout(resolve, 1000));
+    useEffect(() => {
+        const verifyAuth = async () => {
+            try {
+                const res = await fetch('/api/auth/verify', {
+                    credentials: 'include'
+                });
+                const data = await res.json();
 
-        // Find user (replace with actual API call)
-        const user = MOCK_USERS.find(u =>
-            u.username === credentials.username &&
-            u.password === credentials.password
-        );
-
-        if (!user) {
-            throw new Error('Invalid credentials');
-        }
-
-        // Create auth state
-        const authState: AuthState = {
-            isAuthenticated: true,
-            user: {
-                id: user.id,
-                username: user.username,
-                fullName: user.fullName,
-                role: user.role
-            },
-            accessToken: 'mock-token-' + Math.random()
+                setState({
+                    isAuthenticated: res.ok,
+                    user: res.ok ? data.user : null,
+                    accessToken: res.ok ? data.accessToken : null
+                });
+            } catch {
+                setState({
+                    isAuthenticated: false,
+                    user: null,
+                    accessToken: null
+                });
+            }
         };
 
-        // Save to localStorage
-        localStorage.setItem('auth', JSON.stringify(authState));
-
-        // Update state
-        setState(authState);
+        verifyAuth();
     }, []);
 
-    const logout = useCallback(async () => {
-        // Clear localStorage
-        localStorage.removeItem('auth');
+    const login = async (credentials: LoginCredentials) => {
+        const res = await fetch('/api/auth/login', {
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(credentials)
+        });
 
-        // Reset state
+        if (!res.ok) {
+            throw new Error('Authentication failed');
+        }
+
+        const data = await res.json();
+        setState({
+            isAuthenticated: true,
+            user: data.user,
+            accessToken: data.accessToken
+        });
+    };
+
+    const logout = async () => {
+        await fetch('/api/auth/logout', {
+            method: 'POST',
+            credentials: 'include'
+        });
         setState({
             isAuthenticated: false,
             user: null,
             accessToken: null
         });
-    }, []);
-
-    return {
-        ...state,
-        login,
-        logout
     };
+
+    return { ...state, login, logout };
 };
