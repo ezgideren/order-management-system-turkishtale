@@ -1,12 +1,13 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: 'https://turkishtale-ordermanagement.onrender.com/api',
+    baseURL: 'https://turkishtale-ordermanagement.onrender.com', // Remove /api
     headers: {
         'Content-Type': 'application/json'
     },
     withCredentials: true
 });
+
 
 api.interceptors.request.use(
     (config) => {

@@ -59,10 +59,10 @@ app.get('/health', (req, res) => {
     res.json({ status: 'ok', timestamp: new Date() });
 });
 
-app.use('/api/auth', authRoutes);
-app.use('/api/menu', menuRoutes);
-app.use('/api/orders', orderRoutes);
-app.use('/api/tables', tableRoutes);
+app.use('/auth', authRoutes);
+app.use('/menu', menuRoutes);
+app.use('/orders', orderRoutes);
+app.use('/tables', tableRoutes);
 
 app.use((req, res) => {
     res.status(404).json({ message: 'Route not found' });
