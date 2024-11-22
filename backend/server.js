@@ -18,12 +18,13 @@ dotenv.config({ path: join(rootDir, '.env') });
 const app = express();
 
 const corsOptions = {
-    origin: 'https://order-management-system-turkishtale-uudf.onrender.com',
+    origin: 'https://order-management-system-turkishtale-uudf.onrender.com',  // Your frontend URL
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'Accept'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
+    exposedHeaders: ['Authorization'],
     preflightContinue: false,
-    optionsSuccessStatus: 204,
-    credentials: true
+    optionsSuccessStatus: 204
 };
 
 app.use(cors(corsOptions));
@@ -46,7 +47,7 @@ app.get('/test-cors', (req, res) => {
 });
 
 //Routes
-app.use('/api/auth', authRoutes);
+app.use('/api/login', authRoutes);
 app.use('/api/menu', menuRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/tables', tableRoutes);

@@ -15,6 +15,46 @@ const handleValidationErrors = (req, res, next) => {
     next();
 };
 
+export const userValidation = {
+    create: [
+        body('username')
+            .trim()
+            .notEmpty()
+            .withMessage('Username is required')
+            .isLength({ min: 3, max: 20 })
+            .withMessage('Username must be between 3 and 20 characters')
+            .matches(/^[a-zA-Z0-9_]+$/)
+            .withMessage('Username can only contain letters, numbers and underscores'),
+
+        body('password')
+            .isLength({ min: 6 })
+            .withMessage('Password must be at least 6 characters long')
+            .matches(/\d/)
+            .withMessage('Password must contain at least one number')
+            .matches(/[A-Z]/)
+            .withMessage('Password must contain at least one uppercase letter'),
+
+        body('role')
+            .isIn(['admin', 'server', 'kitchen'])
+            .withMessage('Invalid role'),
+
+        handleValidationErrors
+    ],
+
+    login: [
+        body('username')
+            .trim()
+            .notEmpty()
+            .withMessage('Username is required'),
+
+        body('password')
+            .notEmpty()
+            .withMessage('Password is required'),
+
+        handleValidationErrors
+    ]
+};
+
 // Menu Item Validations
 export const menuValidation = {
     create: [
@@ -153,47 +193,6 @@ export const tableValidation = {
         body('status')
             .isIn(['available', 'occupied', 'reserved'])
             .withMessage('Invalid table status'),
-
-        handleValidationErrors
-    ]
-};
-
-// User Validations
-export const userValidation = {
-    create: [
-        body('username')
-            .trim()
-            .notEmpty()
-            .withMessage('Username is required')
-            .isLength({ min: 3, max: 20 })
-            .withMessage('Username must be between 3 and 20 characters')
-            .matches(/^[a-zA-Z0-9_]+$/)
-            .withMessage('Username can only contain letters, numbers and underscores'),
-
-        body('password')
-            .isLength({ min: 6 })
-            .withMessage('Password must be at least 6 characters long')
-            .matches(/\d/)
-            .withMessage('Password must contain at least one number')
-            .matches(/[A-Z]/)
-            .withMessage('Password must contain at least one uppercase letter'),
-
-        body('role')
-            .isIn(['primary_server', 'secondary_server', 'kitchen_staff'])
-            .withMessage('Invalid role'),
-
-        handleValidationErrors
-    ],
-
-    login: [
-        body('username')
-            .trim()
-            .notEmpty()
-            .withMessage('Username is required'),
-
-        body('password')
-            .notEmpty()
-            .withMessage('Password is required'),
 
         handleValidationErrors
     ]

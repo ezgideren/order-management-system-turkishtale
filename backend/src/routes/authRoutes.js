@@ -1,14 +1,25 @@
-import express from 'express';
+import { Router } from 'express';
+import { body } from 'express-validator';
 import AuthController from '../controllers/AuthController.js';
-import { authenticate } from '../middleware/auth.js';
-import { userValidation } from '../middleware/validate.js';
+import { handleValidationErrors } from '../middleware/validate.js';
 
-const router = express.Router();
+const router = Router();
 const authController = new AuthController();
 
-// These endpoints will be accessible at /auth/login, /auth/logout, etc.
-router.post('/login', userValidation.login, authController.login);
-router.post('/logout', authenticate, authController.logout);
-router.get('/verify', authenticate, authController.verify);
+router.post('/login', [
+    body('username').trim().notEmpty().withMessage('Username is required'),
+    body('password').notEmpty().withMessage('Password is required'),
+    handleValidationErrors,
+    async (req, res) => {
+        await authController.login(req.body.username, req.body.password, res);
+    }
+]);
 
+router.post('/verify', async (req, res) => {
+    await authController.verify(req.user.userId, res);
+});
+
+router.post('/logout', async (req, res) => {
+    await authController.logout(req.user.userId, res);
+});
 export default router;
