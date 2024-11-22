@@ -1,4 +1,3 @@
-// middleware/validate.js
 import { body, param, query, validationResult } from 'express-validator';
 
 // Utility function to handle validation results

@@ -1,4 +1,3 @@
-// backend/scripts/setupUsers.js
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import { dirname } from 'path';
@@ -8,7 +7,7 @@ import path from 'path';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: path.join(__dirname, '../.env') });
 
-import { User, USER_ROLES } from '../models/User.js';
+import { User, USER_ROLES } from '../src/models/User.js';
 
 const initialUsers = [
     {
@@ -30,17 +29,17 @@ const initialUsers = [
 
 const setupUsers = async () => {
     try {
-        const mongoURI = process.env.MONGODB_URI || 'mongodb://localhost:27017/turkish-tale';
+        const mongoURI = process.env.MONGODB_URI;
         console.log('Connecting to MongoDB:', mongoURI);
 
         await mongoose.connect(mongoURI);
         console.log('Connected to MongoDB');
 
-        // Clear existing users
+
         await User.deleteMany({});
         console.log('Cleared existing users');
 
-        // Create new users
+
         for (const userData of initialUsers) {
             const user = new User(userData);
             await user.save();

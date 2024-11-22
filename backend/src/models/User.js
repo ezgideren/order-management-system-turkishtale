@@ -1,19 +1,18 @@
-// backend/models/User.js
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 
 export const USER_ROLES = {
-    ADMIN: 'admin',
-    SERVER: 'server',
-    KITCHEN: 'kitchen'
+    ADMIN: 'admin', //full system access
+    SERVER: 'server', //service staff access
+    KITCHEN: 'kitchen' //kitchen staff access
 };
 
 export const PERMISSIONS = {
-    MENU_MANAGEMENT: 'menu_management',
-    ORDER_MANAGEMENT: 'order_management',
-    TABLE_MANAGEMENT: 'table_management',
-    KITCHEN_DISPLAY: 'kitchen_display',
-    USER_MANAGEMENT: 'user_management'
+    MENU_MANAGEMENT: 'menu_management', //menu crud operations
+    ORDER_MANAGEMENT: 'order_management', //order handling
+    TABLE_MANAGEMENT: 'table_management', //table assignments/status
+    KITCHEN_DISPLAY: 'kitchen_display', //kitchen view
+    USER_MANAGEMENT: 'user_management' //user administration
 };
 
 // Role-based permissions mapping
@@ -70,7 +69,7 @@ userSchema.pre('save', function(next) {
     next();
 });
 
-// Hash password
+//Hashes password before saving
 userSchema.pre('save', async function(next) {
     if (this.isModified('password')) {
         this.password = await bcrypt.hash(this.password, 10);
@@ -78,12 +77,12 @@ userSchema.pre('save', async function(next) {
     next();
 });
 
-// Compare password method
+//Compares provided password with stored hash
 userSchema.methods.comparePassword = async function(candidatePassword) {
     return await bcrypt.compare(candidatePassword, this.password);
 };
 
-// Check permission method
+//Checks if user has specific permission. It is a security layer that enforces the role-based access control defined in ROLE_PERMISSIONS.
 userSchema.methods.hasPermission = function(permission) {
     return this.permissions.includes(permission);
 };

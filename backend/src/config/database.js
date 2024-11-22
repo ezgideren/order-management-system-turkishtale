@@ -1,4 +1,3 @@
-// backend/config/database.js
 import mongoose from 'mongoose';
 import  dotenv  from 'dotenv';
 import { dirname, join } from 'path';
@@ -18,16 +17,19 @@ const connectDB = async () => {
         console.log('Current directory:', __dirname);
         console.log('Root directory:', rootDir);
 
+        //Validates MongoDB connection string exists
         if (!process.env.MONGODB_URI) {
             throw new Error('MONGODB_URI is not defined in environment variables');
         }
 
+        // MongoDB connection options
         const options = {
             useNewUrlParser: true,
             useUnifiedTopology: true,
             autoIndex: true
         };
 
+        // Establishes database connection
         await mongoose.connect(process.env.MONGODB_URI, options);
         console.log('Connected to MongoDB successfully');
 

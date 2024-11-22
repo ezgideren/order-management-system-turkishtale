@@ -1,5 +1,5 @@
-// backend/middleware/authorize.js
-import { PERMISSIONS } from '../models/User.js';
+
+import { PERMISSIONS} from "../models/User.js";
 
 export const requirePermission = (permission) => {
     return (req, res, next) => {

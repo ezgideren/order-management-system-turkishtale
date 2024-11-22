@@ -14,9 +14,9 @@ const rootDir = join(__dirname, '..');
 
 dotenv.config({ path: join(rootDir, '.env') });
 
+//Initialize Express
 const app = express();
 
-// CORS configuration
 const corsOptions = {
     origin: 'https://order-management-system-turkishtale-uudf.onrender.com',
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
@@ -27,37 +27,35 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-app.options('*', cors(corsOptions)); // Enable preflight
+app.options('*', cors(corsOptions));
 
-// Standard middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.set('trust proxy', 1);
 
-// Request logging
+//Request logging
 app.use((req, res, next) => {
     console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
-    console.log('Headers:', req.headers); // Debug headers
+    console.log('Headers:', req.headers);
     next();
 });
 
-// Test route for CORS
+//Test route for CORS
 app.get('/test-cors', (req, res) => {
     res.json({ message: 'CORS is working' });
 });
 
-// Routes
+//Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/menu', menuRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/tables', tableRoutes);
 
-// Health check
+//Health check
 app.get('/health', (req, res) => {
     res.json({ status: 'ok', timestamp: new Date() });
 });
 
-// Error handlers
 app.use((req, res) => {
     res.status(404).json({ message: 'Route not found' });
 });
@@ -65,8 +63,10 @@ app.use((req, res) => {
 app.use((err, req, res, next) => {
     console.error('Error:', err);
     res.status(err.status || 500).json({
-        message: process.env.NODE_ENV === 'production' ? 'Internal server error' : err.message,
-        path: req.path // Debug info
+        message: process.env.NODE_ENV === 'production'
+            ? 'Internal server error'
+            : err.message,
+        path: req.path
     });
 });
 
@@ -76,11 +76,9 @@ const startServer = async () => {
         const PORT = process.env.PORT || 10000;
 
         app.listen(PORT, () => {
-            console.log('=================================');
             console.log(`Server running on port ${PORT}`);
             console.log(`Environment: ${process.env.NODE_ENV}`);
             console.log('CORS origin:', corsOptions.origin);
-            console.log('=================================');
         });
     } catch (error) {
         console.error('Failed to start server:', error);
