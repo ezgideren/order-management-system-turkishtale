@@ -3,7 +3,6 @@ import { createContext, useContext, useEffect, useState } from 'react';
 import { useToast } from "@/components/ui/use-toast";
 import api from '@/services/api';
 
-
 interface User {
     id: string;
     username: string;
@@ -40,7 +39,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             if (token) {
                 try {
                     api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-                    const { data } = await api.get('/auth/verify');
+                    const { data } = await api.post('/auth/verify');
                     if (data.user) {
                         setUser(data.user);
                     }
@@ -60,8 +59,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setError(null);
             setLoading(true);
 
-            const { data } = await api.get('/auth/verify');
-            await api.post('/auth/login', { username, password });
+            const { data } = await api.post('/auth/login', { username, password });
 
             if (!data.success) {
                 throw new Error(data.message || 'Login failed');
@@ -69,7 +67,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
             if (data.token) {
                 localStorage.setItem('token', data.token);
+                api.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
             }
+
             if (data.user) {
                 setUser(data.user);
             }
@@ -97,6 +97,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             await api.post<AuthResponse>('/auth/logout');
             localStorage.removeItem('token');
             setUser(null);
+            delete api.defaults.headers.common['Authorization'];
             toast({
                 title: "Success",
                 description: "Logged out successfully",

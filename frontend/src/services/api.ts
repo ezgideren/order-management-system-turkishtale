@@ -3,11 +3,11 @@ import axios from 'axios';
 const api = axios.create({
     baseURL: 'https://turkishtale-ordermanagement.onrender.com/api',
     headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Credentials': 'true'
     },
     withCredentials: true
 });
-
 
 api.interceptors.request.use(
     (config) => {
@@ -21,13 +21,13 @@ api.interceptors.request.use(
 );
 
 api.interceptors.response.use(
-    (response) => response.data,
+    (response) => response,
     (error) => {
         if (error.response?.status === 401) {
             localStorage.removeItem('token');
             window.location.href = '/login';
         }
-        return Promise.reject(error.response?.data || error);
+        return Promise.reject(error);
     }
 );
 

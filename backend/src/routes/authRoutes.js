@@ -3,6 +3,7 @@ import { body } from 'express-validator';
 import AuthController from '../controllers/AuthController.js';
 import { handleValidationErrors } from '../middleware/validate.js';
 
+
 const router = Router();
 const authController = new AuthController();
 
