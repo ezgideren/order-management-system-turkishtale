@@ -18,7 +18,7 @@ dotenv.config({ path: join(rootDir, '.env') });
 const app = express();
 
 const corsOptions = {
-    origin: 'https://order-management-system-turkishtale-uudf.onrender.com',  // Your frontend URL
+    origin: 'https://order-management-system-turkishtale-uudf.onrender.com',
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
