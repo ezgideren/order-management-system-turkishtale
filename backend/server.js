@@ -5,7 +5,7 @@ import menuRoutes from './src/routes/menuRoutes.js';
 import orderRoutes from './src/routes/orderRoutes.js';
 import tableRoutes from './src/routes/tableRoutes.js';
 import dotenv from 'dotenv';
-import { dirname, join } from 'path';
+import path, { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 import connectDB from './src/config/database.js';
 
@@ -59,5 +59,4 @@ const startServer = async () => {
 };
 
 startServer();
-
 export default app;
