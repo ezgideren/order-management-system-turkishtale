@@ -35,7 +35,8 @@ export default class AuthController {
                 token: token
             });
         } catch (error) {
-            return res.status(500).json({ message: error.message });
+            console.error('Login error:', error);
+            return res.status(500).json({ message: 'Internal server error' });
         }
     }
 
@@ -51,10 +52,15 @@ export default class AuthController {
 
             return res.json({
                 success: true,
-                user
+                user: {
+                    id: user._id,
+                    username: user.username,
+                    role: user.role
+                }
             });
         } catch (error) {
-            return res.status(500).json({ message: error.message });
+            console.error('Verify error:', error);
+            return res.status(500).json({ message: 'Internal server error' });
         }
     }
 
@@ -66,7 +72,8 @@ export default class AuthController {
                 message: 'Logged out successfully'
             });
         } catch (error) {
-            return res.status(500).json({ message: error.message });
+            console.error('Logout error:', error);
+            return res.status(500).json({ message: 'Internal server error' });
         }
     }
 }

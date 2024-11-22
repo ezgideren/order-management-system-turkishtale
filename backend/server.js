@@ -14,11 +14,10 @@ const rootDir = join(__dirname, '..');
 
 dotenv.config({ path: join(rootDir, '.env') });
 
-//Initialize Express
 const app = express();
 
 const corsOptions = {
-    origin: 'https://order-management-system-turkishtale-uudf.onrender.com',
+    origin: ['https://order-management-system-turkishtale-uudf.onrender.com', 'http://localhost:5173'],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
@@ -34,33 +33,53 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.set('trust proxy', 1);
 
-//Request logging
+// Request logging
 app.use((req, res, next) => {
     console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
     console.log('Headers:', req.headers);
     next();
 });
 
-//Test route for CORS
+// Base routes
+app.get('/', (req, res) => {
+    res.json({ message: 'API is running' });
+});
+
 app.get('/test-cors', (req, res) => {
     res.json({ message: 'CORS is working' });
 });
 
-//Routes
+// API routes
 app.use('/api/auth', authRoutes);
 app.use('/api/menu', menuRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/tables', tableRoutes);
 
-//Health check
+// Health check
 app.get('/health', (req, res) => {
-    res.json({ status: 'ok', timestamp: new Date() });
+    res.json({
+        status: 'ok',
+        timestamp: new Date(),
+        environment: process.env.NODE_ENV
+    });
 });
 
+// Global error handler
+app.use((err, req, res, next) => {
+    console.error('Error:', err);
+    res.status(500).json({
+        message: 'Internal server error',
+        error: process.env.NODE_ENV === 'development' ? err.message : undefined
+    });
+});
+
+// 404 handler
 app.use((req, res) => {
-    res.status(404).json({ message: 'Route not found' });
+    res.status(404).json({
+        message: 'Route not found',
+        path: req.originalUrl
+    });
 });
-
 
 const startServer = async () => {
     try {
@@ -70,7 +89,7 @@ const startServer = async () => {
         app.listen(PORT, () => {
             console.log(`Server running on port ${PORT}`);
             console.log(`Environment: ${process.env.NODE_ENV}`);
-            console.log('CORS origin:', corsOptions.origin);
+            console.log('CORS origins:', corsOptions.origin);
         });
     } catch (error) {
         console.error('Failed to start server:', error);
@@ -81,3 +100,5 @@ const startServer = async () => {
 (async () => {
     await startServer();
 })();
+
+export default app;
