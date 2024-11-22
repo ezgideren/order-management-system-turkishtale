@@ -47,10 +47,10 @@ app.get('/test-cors', (req, res) => {
 });
 
 //Routes
-app.use('/login', authRoutes);
-app.use('/menu', menuRoutes);
-app.use('/orders', orderRoutes);
-app.use('/tables', tableRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/menu', menuRoutes);
+app.use('/api/orders', orderRoutes);
+app.use('/api/tables', tableRoutes);
 
 //Health check
 app.get('/health', (req, res) => {

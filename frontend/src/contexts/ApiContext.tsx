@@ -15,7 +15,7 @@ interface ApiContextType {
 const ApiContext = createContext<ApiContextType | undefined>(undefined);
 
 export const ApiProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const API_URL = import.meta.env.VITE_API_URL || '44.226.145.213';
+    const API_URL = import.meta.env.VITE_API_URL || 'https://turkishtale-ordermanagement.onrender.com';
 
     const axiosInstance: AxiosInstance = axios.create({
         baseURL: API_URL,
