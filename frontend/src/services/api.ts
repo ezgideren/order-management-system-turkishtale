@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: 'https://turkishtale-ordermanagement.onrender.com/api',
+    baseURL: 'https://order-management-system-turkishtale-uudf.onrender.com/api',
     headers: {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Credentials': 'true'
