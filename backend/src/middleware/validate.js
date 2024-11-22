@@ -1,7 +1,7 @@
 import { body, param, query, validationResult } from 'express-validator';
 
 // Utility function to handle validation results
-const handleValidationErrors = (req, res, next) => {
+export const handleValidationErrors = (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(400).json({
