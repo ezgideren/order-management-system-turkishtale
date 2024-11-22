@@ -1,12 +1,12 @@
 import axios from 'axios';
 
+const BASE_URL = import.meta.env.VITE_API_URL || 'https://order-management-system-turkishtale-uudf.onrender.com';
+
 const api = axios.create({
-    baseURL: 'https://order-management-system-turkishtale-uudf.onrender.com/api',
+    baseURL: `${BASE_URL}/api`,
     headers: {
         'Content-Type': 'application/json',
-        'Access-Control-Allow-Credentials': 'true'
-    },
-    withCredentials: true
+    }
 });
 
 api.interceptors.request.use(
@@ -21,13 +21,13 @@ api.interceptors.request.use(
 );
 
 api.interceptors.response.use(
-    (response) => response,
+    (response) => response.data,
     (error) => {
         if (error.response?.status === 401) {
             localStorage.removeItem('token');
             window.location.href = '/login';
         }
-        return Promise.reject(error);
+        return Promise.reject(error.response?.data || error);
     }
 );
 
