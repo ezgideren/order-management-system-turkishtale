@@ -47,10 +47,10 @@ app.get('/test-cors', (req, res) => {
 });
 
 //Routes
-app.use('/api/login', authRoutes);
-app.use('/api/menu', menuRoutes);
-app.use('/api/orders', orderRoutes);
-app.use('/api/tables', tableRoutes);
+app.use('/login', authRoutes);
+app.use('/menu', menuRoutes);
+app.use('/orders', orderRoutes);
+app.use('/tables', tableRoutes);
 
 //Health check
 app.get('/health', (req, res) => {
@@ -61,15 +61,6 @@ app.use((req, res) => {
     res.status(404).json({ message: 'Route not found' });
 });
 
-app.use((err, req, res, next) => {
-    console.error('Error:', err);
-    res.status(err.status || 500).json({
-        message: process.env.NODE_ENV === 'production'
-            ? 'Internal server error'
-            : err.message,
-        path: req.path
-    });
-});
 
 const startServer = async () => {
     try {
@@ -87,4 +78,6 @@ const startServer = async () => {
     }
 };
 
-startServer();
+(async () => {
+    await startServer();
+})();
