@@ -1,11 +1,14 @@
-// src/Routes.tsx
 import { Routes as RouterRoutes, Route, Navigate } from 'react-router-dom';
 import Layout from './pages/layout';
 import LoginPage from './pages/auth/LoginPage';
 import { useAuthContext } from '@/contexts/AuthContext';
 
 const Routes = () => {
-    const { isAuthenticated } = useAuthContext();
+    const { isAuthenticated, loading } = useAuthContext();
+
+    if (loading) {
+        return <div>Loading...</div>;
+    }
 
     return (
         <RouterRoutes>
@@ -13,14 +16,14 @@ const Routes = () => {
                 path="/login"
                 element={
                     isAuthenticated ? (
-                        <Navigate to="/dashboard" replace />
+                        <Navigate to="/" replace />
                     ) : (
                         <LoginPage />
                     )
                 }
             />
             <Route
-                path="/dashboard"
+                path="/"
                 element={
                     isAuthenticated ? (
                         <Layout />
@@ -30,9 +33,9 @@ const Routes = () => {
                 }
             />
             <Route
-                path="/"
+                path="*"
                 element={
-                    <Navigate to={isAuthenticated ? "/dashboard" : "/login"} replace />
+                    <Navigate to={isAuthenticated ? "/" : "/login"} replace />
                 }
             />
         </RouterRoutes>

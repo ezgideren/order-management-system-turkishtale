@@ -3,7 +3,7 @@ import { createContext, useContext } from 'react';
 import axios from 'axios';
 const ApiContext = createContext(undefined);
 export const ApiProvider = ({ children }) => {
-    const API_URL = import.meta.env.VITE_API_URL || '44.226.145.213';
+    const API_URL = import.meta.env.VITE_API_URL || 'https://turkishtale-ordermanagement.onrender.com';
     const axiosInstance = axios.create({
         baseURL: API_URL,
         headers: {

@@ -1,8 +1,8 @@
 import axios from 'axios';
 const api = axios.create({
-    baseURL: 'https://turkishtale-ordermanagement.onrender.com/api',
+    baseURL: 'https://order-management-system-turkishtale.onrender.com/api',
     headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
     },
     withCredentials: true
 });
@@ -14,10 +14,15 @@ api.interceptors.request.use((config) => {
     return config;
 }, (error) => Promise.reject(error));
 api.interceptors.response.use((response) => response.data, (error) => {
+    console.error('API Error:', {
+        status: error.response?.status,
+        data: error.response?.data,
+        message: error.message
+    });
     if (error.response?.status === 401) {
         localStorage.removeItem('token');
         window.location.href = '/login';
     }
-    return Promise.reject(error.response?.data || error);
+    return Promise.reject(error);
 });
 export default api;

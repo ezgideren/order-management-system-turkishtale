@@ -14,7 +14,7 @@ export const AuthProvider = ({ children }) => {
             if (token) {
                 try {
                     api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-                    const { data } = await api.get('/auth/verify');
+                    const { data } = await api.post('/auth/verify');
                     if (data.user) {
                         setUser(data.user);
                     }
@@ -32,13 +32,13 @@ export const AuthProvider = ({ children }) => {
         try {
             setError(null);
             setLoading(true);
-            const { data } = await api.get('/auth/verify');
-            await api.post('/auth/login', { username, password });
+            const { data } = await api.post('/auth/login', { username, password });
             if (!data.success) {
                 throw new Error(data.message || 'Login failed');
             }
             if (data.token) {
                 localStorage.setItem('token', data.token);
+                api.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
             }
             if (data.user) {
                 setUser(data.user);
@@ -67,6 +67,7 @@ export const AuthProvider = ({ children }) => {
             await api.post('/auth/logout');
             localStorage.removeItem('token');
             setUser(null);
+            delete api.defaults.headers.common['Authorization'];
             toast({
                 title: "Success",
                 description: "Logged out successfully",
