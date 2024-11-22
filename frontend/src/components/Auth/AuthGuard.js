@@ -15,7 +15,7 @@ const useAuth = () => {
                 return;
             }
             try {
-                const response = await fetch('/api/auth/verify', {
+                const response = await fetch('/verify', {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }

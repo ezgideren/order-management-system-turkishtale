@@ -31,11 +31,9 @@ export interface AuthError {
     code: 'INVALID_CREDENTIALS' | 'ACCOUNT_DISABLED' | 'SESSION_EXPIRED';
     message: string;
 }
-export type AuthResponse = {
-    success: true;
-    user: User;
-    accessToken: string;
-} | {
-    success: false;
-    error: AuthError;
-};
+export interface AuthResponse {
+    success: boolean;
+    user?: User;
+    token?: string;
+    message?: string;
+}

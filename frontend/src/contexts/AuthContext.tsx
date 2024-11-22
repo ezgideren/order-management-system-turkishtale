@@ -2,7 +2,7 @@ import * as React from 'react';
 import { createContext, useContext, useEffect, useState } from 'react';
 import { useToast } from "@/components/ui/use-toast";
 import api from '@/services/api';
-import { AxiosResponse } from 'axios';
+
 
 interface User {
     id: string;
@@ -39,7 +39,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             const token = localStorage.getItem('token');
             if (token) {
                 try {
-                    const { data } = await api.get<AuthResponse>('/auth/verify');
+                    api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+                    const { data } = await api.get('/auth/verify');
                     if (data.user) {
                         setUser(data.user);
                     }
@@ -51,7 +52,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setLoading(false);
         };
 
-        initializeAuth();
+        initializeAuth().catch(console.error);
     }, []);
 
     const login = async (username: string, password: string): Promise<void> => {
@@ -59,7 +60,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setError(null);
             setLoading(true);
 
-            const { data } = await api.post<AuthResponse>('/auth/login', { username, password });
+            const { data } = await api.get('/auth/verify');
+            await api.post('/auth/login', { username, password });
 
             if (!data.success) {
                 throw new Error(data.message || 'Login failed');

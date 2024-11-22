@@ -1,7 +1,6 @@
-import { useState, useEffect } from 'react';
-import { AuthState, User, LoginCredentials, AuthResponse } from '@/types/auth';
+import { useState} from 'react';
+import { AuthState, LoginCredentials, AuthResponse } from '@/types/auth';
 import api from '@/services/api';
-import { AxiosResponse } from 'axios';
 
 export const useAuth = () => {
     const [state, setState] = useState<AuthState>({
@@ -10,40 +9,42 @@ export const useAuth = () => {
         accessToken: null
     });
 
-    useEffect(() => {
-        const verifyAuth = async () => {
-            try {
-                const { data } = await api.get<any, AxiosResponse<AuthResponse>>('/auth/verify');
-                if (data.success) {
-                    setState({
-                        isAuthenticated: true,
-                        user: data.user,
-                        accessToken: data.accessToken
-                    });
-                }
-            } catch {
-                setState({
-                    isAuthenticated: false,
-                    user: null,
-                    accessToken: null
-                });
-            }
-        };
-
-        verifyAuth();
-    }, []);
-
     const login = async (credentials: LoginCredentials) => {
-        const { data } = await api.post<any, AxiosResponse<AuthResponse>>('/auth/login', credentials);
+        const response = await api.post<AuthResponse>('/auth/login', credentials);
+        const data = response.data;
+
         if (!data.success) {
-            throw new Error('Authentication failed');
+            throw new Error(data.message || 'Authentication failed');
         }
-        localStorage.setItem('token', data.accessToken);
+
+        if (data.token) {
+            localStorage.setItem('token', data.token);
+        }
+
         setState({
             isAuthenticated: true,
-            user: data.user,
-            accessToken: data.accessToken
+            user: data.user || null,
+            accessToken: data.token || null
         });
+    };
+
+    const verifyAuth = async () => {
+        try {
+            const response = await api.get<AuthResponse>('/auth/verify');
+            const data = response.data;
+
+            setState({
+                isAuthenticated: true,
+                user: data.user || null,
+                accessToken: data.token || null
+            });
+        } catch (error) {
+            setState({
+                isAuthenticated: false,
+                user: null,
+                accessToken: null
+            });
+        }
     };
 
     const logout = async () => {

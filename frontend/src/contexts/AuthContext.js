@@ -13,6 +13,7 @@ export const AuthProvider = ({ children }) => {
             const token = localStorage.getItem('token');
             if (token) {
                 try {
+                    api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
                     const { data } = await api.get('/auth/verify');
                     if (data.user) {
                         setUser(data.user);
@@ -25,13 +26,14 @@ export const AuthProvider = ({ children }) => {
             }
             setLoading(false);
         };
-        initializeAuth();
+        initializeAuth().catch(console.error);
     }, []);
     const login = async (username, password) => {
         try {
             setError(null);
             setLoading(true);
-            const { data } = await api.post('/auth/login', { username, password });
+            const { data } = await api.get('/auth/verify');
+            await api.post('/auth/login', { username, password });
             if (!data.success) {
                 throw new Error(data.message || 'Login failed');
             }

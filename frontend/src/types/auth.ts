@@ -38,11 +38,9 @@ export interface AuthError {
     message: string;
 }
 
-export type AuthResponse = {
-    success: true;
-    user: User;
-    accessToken: string;
-} | {
-    success: false;
-    error: AuthError;
-};
+export interface AuthResponse {
+    success: boolean;
+    user?: User;
+    token?: string;
+    message?: string;
+}
