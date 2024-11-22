@@ -3,10 +3,8 @@ import bcrypt from 'bcryptjs';
 import { User } from '../models/User.js';
 
 export default class AuthController {
-    async login(req, res, next) {
+    async login(username, password, res) {
         try {
-            const { username, password } = req.body;
-
             if (!username || !password) {
                 return res.status(400).json({ message: 'Invalid request' });
             }
@@ -28,21 +26,22 @@ export default class AuthController {
             );
 
             return res.json({
+                success: true,
                 user: {
                     id: user._id,
                     username: user.username,
                     role: user.role
                 },
-                accessToken: token
+                token: token
             });
         } catch (error) {
-            next(error);
+            return res.status(500).json({ message: error.message });
         }
     }
 
-    async verify(req, res, next) {
+    async verify(userId, res) {
         try {
-            const user = await User.findById(req.user.userId)
+            const user = await User.findById(userId)
                 .select('-password')
                 .exec();
 
@@ -50,19 +49,24 @@ export default class AuthController {
                 return res.status(401).json({ message: 'User not found' });
             }
 
-            return res.json({ user });
+            return res.json({
+                success: true,
+                user
+            });
         } catch (error) {
-            next(error);
+            return res.status(500).json({ message: error.message });
         }
     }
 
-    async logout(req, res, next) {
+    async logout(userId, res) {
         try {
-            await User.findById(req.user.userId).exec();
-            return res.json({ message: 'Logged out successfully' });
+            await User.findById(userId).exec();
+            return res.json({
+                success: true,
+                message: 'Logged out successfully'
+            });
         } catch (error) {
-            next(error);
+            return res.status(500).json({ message: error.message });
         }
     }
 }
-
